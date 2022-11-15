@@ -1,6 +1,6 @@
 <template>
   <div>
-    Hi {{ $route.params.name }}
+    Hi {{ r.params.name }}
   </div>
   <nuxt-link to="/">
     back
@@ -8,9 +8,7 @@
 </template>
 
 <script lang="ts" setup>
-
-const $route = useRoute()
-
+const r = useRoute()
 definePageMeta({
   layout: "default",
 });
