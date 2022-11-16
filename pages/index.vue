@@ -21,6 +21,16 @@
 <script lang="ts" setup>
 
 definePageMeta({
-  layout: "default",
+  layout: "admin",
 });
+
+useHead({
+  title: 'Dashboard',
+})
+</script>
+
+<script lang="ts">
+export default {
+  ssr: false // Disable Server Side rendering
+}
 </script>
