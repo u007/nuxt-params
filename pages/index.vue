@@ -1,6 +1,9 @@
 <template>
   AAA
   <p>
+    {{ data }} {{ loading }}
+  </p>
+  <p>
     <nuxt-link to="/hi/abcme">
       abc
     </nuxt-link>
@@ -19,6 +22,10 @@
 </template>
 
 <script lang="ts" setup>
+
+
+const { data, loading } = useTRPCQuery((client) => client.hello.hi.query({ text: 'hi' }), [],
+  { authenticated: false })
 
 definePageMeta({
   layout: "admin",

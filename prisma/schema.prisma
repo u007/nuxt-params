@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+generator client {
+  provider = "prisma-client-js"
+
+  // output = "../node_modules/@prisma/client/.prisma/client/"
+  // work around pnpm
+  // output = "../node_modules/.pnpm/@prisma+client@4.5.0_prisma@4.5.0/node_modules/@prisma/client/.prisma/client/"
+}
+
+// generator dbml {
+//   provider = "prisma-dbml-generator"
+// }
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+type PhotoURL {
+  original String
+  t128     String
+  t256     String
+  t512     String
+  t1024    String
+  t2048    String
+}
+
+enum TaskPriorityEnum {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum TaskStatusEnum {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+model Task {
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime?       @default(now())
+  updatedAt   DateTime?       @updatedAt
+  title       String
+  description String?
+  status      TaskStatusEnum?
+  photoURL    PhotoURL?
+
+  priority TaskPriorityEnum?
+
+  userId String @db.ObjectId
+  user   User?  @relation(fields: [userId], references: [id])
+}
+
+model Role {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @default(now()) @updatedAt()
+  name      String
+  isPublic  Boolean   @default(true)
+
+  ownerId   String?   @map("_ownerId") @db.ObjectId
+  owner     User?     @relation(name: "OwnedRoles", fields: [ownerId], references: [id])
+  deletedAt DateTime?
+
+  @@unique([ownerId, name])
+}
+
+model Site {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+  name        String    @unique
+  displayName String?
+  url         String?
+
+  status Int
+
+  User User[]
+}
+
+model Team {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @default(now()) @updatedAt
+  name        String    @unique
+  displayName String?
+
+  status Int
+}
+
+model User {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @default(now()) @updatedAt
+  username  String    @unique
+  email     String?
+  password  String
+  firstName String?
+  lastName  String?
+  photo     String?
+  photoURL  PhotoURL?
+  status    Int?      @default(1)
+  siteId    String    @map("_siteId") @db.ObjectId
+
+  roles String[]
+  teams String[]
+
+  ownedRoles Role[] @relation("OwnedRoles")
+  tasks      Task[]
+  site       Site?  @relation(fields: [siteId], references: [id])
+
+  deletedAt DateTime?
+}
